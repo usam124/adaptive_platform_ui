@@ -991,6 +991,18 @@ class _MinimizableTabBarState extends State<_MinimizableTabBar>
 
   @override
   Widget build(BuildContext context) {
+    // Anything Flutter paints over a platform view is composited into a
+    // separate overlay surface clipped to that view's rect, and that surface
+    // renders a shade off the main one - so a modal sheet drawn over the tab
+    // bar shows a tinted band with a seam exactly the height of the bar.
+    // Embed the UiKitView only while this route is on top, the way
+    // IOS26Scaffold already does; keep it through the pop animation so the
+    // bar is back before the sheet has gone.
+    final route = ModalRoute.of(context);
+    final showNativeView =
+        (route?.isCurrent ?? true) ||
+        route?.animation?.status == AnimationStatus.reverse;
+
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
@@ -1014,6 +1026,7 @@ class _MinimizableTabBarState extends State<_MinimizableTabBar>
             widget.selectedItemColor ?? CupertinoTheme.of(context).primaryColor,
         unselectedItemTint: widget.unselectedItemColor,
         minimizeBehavior: widget.minimizeBehavior,
+        showNativeView: showNativeView,
         hidden: widget.hidden,
       ),
     );
