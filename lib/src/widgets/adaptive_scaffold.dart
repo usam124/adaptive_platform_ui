@@ -931,6 +931,14 @@ class _MinimizableTabBarState extends State<_MinimizableTabBar>
     }
 
     if (notification is ScrollUpdateNotification) {
+      // Only the user's own vertical drag moves the bar. Programmatic and
+      // layout-corrective scrolls (pages settling after a tab switch, offstage
+      // pages in an IndexedStack, horizontal PageViews) would otherwise
+      // re-minimize the bar right after it was expanded.
+      if (notification.dragDetails == null ||
+          notification.metrics.axis != Axis.vertical) {
+        return;
+      }
       final delta = notification.scrollDelta ?? 0;
       final metrics = notification.metrics;
 
