@@ -909,6 +909,16 @@ class _MinimizableTabBarState extends State<_MinimizableTabBar>
   }
 
   @override
+  void didUpdateWidget(covariant _MinimizableTabBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Switching tabs restores the full bar: the scroll that minimized it
+    // belonged to the page being left.
+    if (oldWidget.selectedIndex != widget.selectedIndex) {
+      _expandTabBar();
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -977,10 +987,10 @@ class _MinimizableTabBarState extends State<_MinimizableTabBar>
       animation: _animation,
       builder: (context, child) {
         // Calculate minimized state
-        // value: 0.0 = expanded (full size), 1.0 = minimized (70% size, 50% opacity)
+        // value: 0.0 = expanded (full size), 1.0 = minimized (90% size, 80% opacity)
         final minimizeProgress = _animation.value;
-        final scale = 1.0 - (minimizeProgress * 0.3); // 1.0 → 0.7
-        final opacity = 1.0 - (minimizeProgress * 0.5); // 1.0 → 0.5
+        final scale = 1.0 - (minimizeProgress * 0.1); // 1.0 → 0.9
+        final opacity = 1.0 - (minimizeProgress * 0.2); // 1.0 → 0.8
 
         return Transform.scale(
           scale: scale,
